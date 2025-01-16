@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: notes-app:latest
+    ports:
+      - "3080:3000"
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: db
+      DB_URL: ${DB_URL}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - notes-api
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: notes_manager
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  notes-api:
+    image: notes-api:latest
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: db
+      DB_URL: ${DB_URL}
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
